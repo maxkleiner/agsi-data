@@ -1,0 +1,484 @@
+program Census_API4_Simple_1CenssusDataLoader;
+ 
+(* #sign:Max: MAXBOX10: 16/09/2022 18:44:24 
+ * API http://text-processing.com/docs/sentiment.html,
+ * https://github.com/maxkleiner/maXbox4/blob/master/newstoday_sentiment.ipynb*
+ * https://gist.githubusercontent.com/flaviuvadan/20d5b2387cc3253b532557955bb0cd23/raw/88da5e9a88131524a0eacc398baf96f043a27d7f/census_data.txt*)
+ //https://www.census.gov/popclock/
+ //https://github.com/maxkleiner/agsi-data
+ 
+Const 
+  URLSentimentAPI2= 'http://text-processing.com/api/sentiment/';  
+  USERAGENT='Mozilla/5.0 (Windows NT 10.0; Win64;x64;rv:98.0) Gecko/20100101 Firefox/98.0';
+  URLSentimentAPI3=
+        'http://text-processing.com/api/sentiment/language=dutch&text=goed boek';
+        //term=%s&local=%s&limit=%d';
+        
+  POPULATION_FILE = 'census_data.txt';
+      
+        
+{Status 405
+METHOD NOT ALLOWED
+VersionHTTP/1.1
+Transferred232 B (0 B size)
+Request PriorityHighest } 
+
+
+function NowGMT: TDateTime;
+var ST: {Windows.}TSystemTime;  // current system time
+begin
+  // This Windows API function gets system time in UTC/GMT
+  {Windows.}GetSystemTime(ST);
+  Result:= {SysUtils.}SystemTimeToDateTime(ST);
+end;
+
+
+procedure GetSentimentStream(C_form,apath: string; const Data: string);
+var encodURL: string;
+    mapStrm: TStringStream;
+begin
+  encodURL:= Format(UrlSentimentAPI2,[c_form,HTTPEncode(Data)]);
+  mapStrm:= TStringStream.create('');
+  try
+    HttpGet(EncodURL, mapStrm);  //WinInet
+    mapStrm.Position:= 0;
+    //SaveStringtoFile(apath, mapStrm.datastring)
+    //OpenDoc(apath);
+    writeln(mapStrm.datastring)
+  finally
+    mapStrm.Free;
+    encodURL:= '';
+  end;
+end;
+
+function GetSentimentStream8(const S_API, pData: string): string;
+var strm: TStringStream;
+    jo, locate: TJSONObject;
+begin
+//function HttpPostURL(const URL,URLData:string; const Data:TStream):Boolean;
+  strm:= TStringStream.create('');
+  try
+    sr:='text='+HTTPEncode(pData)+'&';
+    sr:= sr+'language=dutch';
+    if HttpPostURL(S_API, sr, strm) then
+      jo:= TJSONObject.Create4(strm.dataString);
+    result:= jo.getString('label')
+  except
+    writeln('E: '+ExceptiontoString(exceptiontype, exceptionparam)); 
+  finally     
+    jo.free;
+    strm.free;
+  end;  
+end; 
+
+//https://github.com/Zeus64/alcinoe/blob/master/source/ALHttpClient.pas
+
+function TALHTTPClient_Post6(aUrl: AnsiString;
+                             aPoststring: string;
+                             aResponseContentStream: TStream;
+                             aResponseContentHeader: TALHTTPResponseHeader2): string;
+Var 
+   LHttpClient: TALWininetHttpClient2;
+   //RequestMethod: TALHTTPRequestMethod;
+   FRequestHeader: TALHTTPRequestHeader2;
+   aPostDataStrings: TALStrings;
+   ARequestHeaderValues : TALNameValueArray;
+   ARequestHeaderValue : TALNameValuePair;
+   aPutDataStream: TStream;
+begin
+  LHttpClient:= TALWininetHttpClient2.create;
+  //LHttpClient.url:= aUrl;
+  //LHttpClient.RequestMethod:= HTTPmt_Post; //HTTPrm_Post;
+  LHttpClient.RequestHeader.UserAgent:=USERAGENT;
+  //LHttpClient.WWWAuthenticate
+  LHttpClient.RequestHeader.CustomHeaders;
+  //LHttpClient.RequestHeader.RawHeaderText:='
+  aResponseContentHeader:= TALHTTPResponseHeader2.Create;
+  aResponseContentStream:= TStringstream.create('');
+  try
+     aPostDataStrings:= TALStringlist.create;
+     aPostDataStrings.add('text='+HTTPEncode(apoststring)); 
+     aPostDataStrings.add('language=english'); 
+     //writeln('debug '+aResponseContentHeader.ReasonPhrase);
+     //LHttpClient.PostUrlEncoded1(aUrl, aPostDataStrings, aResponseContentStream,
+       //                               aResponseContentHeader, true); //overload;  
+      ARequestHeaderValue.name:= 'content-type'; 
+      ARequestHeaderValue.value:= 'text/json'; 
+      setlength( ARequestHeaderValues, 2)
+       ARequestHeaderValues[0]:= ARequestHeaderValue;    //[1].name:= 'user agent';
+     result:= LHttpClient.PostUrlEncoded1(aUrl,aPostDataStrings,ARequestHeaderValues,true);
+      //overload;    
+        //RegisterMethod('Procedure Put( const aUrl:AnsiString;const aPutDataStream: TStream; const aResponseContent:TStream; const aResponseHeader:TALHTTPResponseHeader2; const ARequestHeaderValues: TALNameValueArray);');
+      //LHttpClient.put(aUrl, aPutDataStream, aResponseContentStream, aResponseContentHeader, 
+        //                       ARequestHeaderValues);
+  finally
+    LHttpClient.disconnect;
+    LHttpClient.Free;
+    aPostDataStrings.Free;
+  end;
+end;
+
+//fill the Series for this example with random data
+procedure TForm1BitBtn1Click(Sender: TObject);
+Var t:integer; series1: TLineSeries;
+begin
+  For t := 0 To 20 do
+    Series1.AddXY(t, Random(100) - Random(70), '', clRed);
+end;
+
+
+//Adding arrays of data
+//To add an array of data to a Chart Series simply allocate the array to the Series.
+//Example
+
+procedure TDynArraysButton1Click(Sender: TObject);
+Var X,Y : Array of Double;   // TChartValues
+    t   : Integer; Num : Integer;
+    Series1: TLineSeries;
+begin
+  { number of points here using an Editbox to set Array size}
+  Num:=StrToInt('Edit1.Text');
+  { allocate our custom arrays }
+  SetLength(X,Num);
+  SetLength(Y,Num);
+  { fill data in our custom arrays }
+  X[0]:=0;
+  Y[0]:=Random(10000);
+  for t:=1 to Num-1 do begin
+    X[t]:=t;
+    Y[t]:=Y[t-1]+Random(101)-50;
+  end;
+  { set our X array }
+  With Series1.XValues do begin
+    //Value:=TChartValues(X);  { <-- the array }
+    //Count:=Num;               { <-- number of points }
+    Modified:=True;           { <-- recalculate min and max }
+  end;
+  { set our Y array }
+  With Series1.YValues do begin
+    //Value[0]:=(Y);
+    //Count:=Num;
+    Modified:=True;
+  end;
+  //Series1.YValues.Count();
+  Series1.YValues.Value[1]; //.(MyArray,'');
+  Series1.YValues.Modified:=True;
+  //Chart1.UndoZoom; { <-- remove zoom (optional) }
+  { Show data }
+  Series1.Repaint;
+end;
+
+//We define a TPopulationRecord and an array of type TPopulationArray to hold the data of the population table: 
+//"Population" "Income" "Illiteracy" "Life.Exp" "Murder" "HS.Grad" "Frost" "Area"
+type
+  TPopulationRecord = record
+    County: string;
+    Population: integer;
+    Income: integer;
+    //Age: Integer;
+    Illiter: Double;
+    LifeExp: Double;
+    Murder: Double;
+    HSGrad: Double;
+    Frost: Integer;
+    Area: Integer;
+  end;
+ TPopulationArray = array of TPopulationRecord;
+  
+var PopData : TPopulationArray;
+  
+function StripThousandSep(const s: String): String;
+  // Removes the thousand separators from the string
+  // Otherwise StrToFloat would fail.
+  var
+    i: Integer;
+  begin
+    Result:= s;
+    for i:=Length(Result) downto 1 do
+      if Result[i] = ',' then
+        Delete(Result, i, 1);
+  end;
+  
+  
+procedure LoadPopulationData(const AFileName: String; var AData: TPopulationArray);
+var
+  List1, List2: TStringList;
+  i, j, n: Integer;
+  s: String; ds: char;
+begin
+  ds:= GetFormatSettings2.DecimalSeparator;
+  writeln('DecimalSeparato '+ds)
+  List1 := TStringList.Create;
+  try
+    List1.LoadFromFile(AFileName);
+    n := List1.Count;
+    SetLength(AData, n-1);
+    setdecimalseparator('.');
+    //GetFormatSettings2; // : TFormatSettings
+    //GetFormatSettings2.DecimalSeparator('.');
+    List2 := TStringList.Create;
+    try
+      List2.Delimiter:= #32; //#9;
+      List2.StrictDelimiter := true;
+      j := 0;
+      for i:=1 to n-1 do begin
+        List2.DelimitedText := List1[i];
+        s := List1[i];
+        with AData[j] do begin
+         { if i < n-1 then
+            Age := StrToInt(trim(List2[0]))
+          else
+            Age := 100;  // the last line is "100 +"  data imputing}
+          County:= trim(List2[0]); 
+          population:= atoi(trim(List2[1])); 
+          Income:= atoi(trim(List2[2]));   
+          Illiter:= StrToFloat(StripThousandSep(trim(List2[3])));
+          LifeExp:= StrToFloat((trim(List2[4])));
+          Murder:= StrToFloat((trim(List2[5])));
+          HSGrad:= StrToFloat((trim(List2[6])));
+          Frost:= atoi(trim(List2[7]));
+          Area:= atoi(trim(List2[8]));
+        end;
+        inc(j);
+      end;
+    finally
+      List2.Free;
+    end;
+  finally
+    //FormatSettings.DecimalSeparator:= ds;
+    setdecimalseparator(ds);
+    List1.Free;
+  end;
+end;  
+
+
+//----------------program TestPostRequest;
+const
+  RequestHeaderTemplate =
+    'SOAPAction: http://tempuri.org/IConsultaCFDIService/Consulta';
+  RequestDataTemplate =
+  '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"xmlns:tem="http://tempuri.org/">'
+    + '   <soapenv:Header/>'
+    + '   <soapenv:Body>'
+    + '      <tem:Consulta>'
+    + '         <!--Optional:-->'
+    + '         <tem:expresionImpresa><![CDATA[%expresionImpresa%]]></tem:expresionImpresa>'
+    + '      </tem:Consulta>'
+    + '   </soapenv:Body>'
+    + '</soapenv:Envelope>';
+    
+
+//var weights: array[0..2] of real;
+const refsent= 'The Democrats say they sheltered in a safe room alongside others who refused to wear masks.';
+
+const refsent2= 'Three US lawmakers have tested positive for the coronavirus after sheltering for hours with colleagues during last weeks deadly assault on the Capitol.' ;
+var 
+    ashaFM: TSHA2FamilyMember ;
+    cryplib: TCryptographicLibrary;
+    IIndyHTTP: TIdHTTP;  abitm: TBitmap;
+ 
+begin //@main
+  maxform1.orangestyle1click(self)
+  memo1.font.size:= 13; memo2.font.size:= 15;
+  writeln('FreePhysicalMemory1: '+itoa(GetFreePhysicalMemory))
+  writeln(Sha256(memo2.text,'S'))
+  //writeln(sha512('const Plaintext: string','S'))
+  //ExecuteShell('cmd','/c runas "/user:Administrator" ExePath+'maXbox4.exe')
+    
+  if IsInternet then begin  
+     {
+       println(GetSentimentStream6(URLSentimentAPI2,
+                              FiletoString(senttextfile2)));
+     }
+    println('res: '+GetSentimentStream8(URLSentimentAPI2,'Het is goed'));
+    writeln('back from post3sent: '+ReplaceRegExpr('\d\d{4,12}[},]',
+      TALHTTPClient_Post6(URLSentimentAPI2,'this is good text2test',
+                      Nil, Nil),'',false));  
+  end;    
+  
+  //println(GetSentimentStream7(URLSentimentAPI2,refsent2));
+  //println(ReplaceRegExpr('\d\d{4,12}[},]',
+  //           GetSentimentStream7(URLSentimentAPI2,refsent2),' ',false))
+  //Instantiate a WinHttpRequest object as a second solution.
+  (* httpReq:= CreateOleObject('WinHttp.WinHttpRequest.5.1');
+   // Open an HTTP connection.                
+   hr:= httpReq.Open('GET', URLNewsFeed, false);
+   if hr= S_OK then httpReq.setRequestheader('items','title'); 
+    HttpReq.Send();  /// Send HTTP Request & get Responses.
+   //writeln(httpReq.responseText)
+   //writeln(datetimetostr(ParseRSSDate(httpReq.responseText)));  
+   //writeln(httpReq.GetAllResponseHeaders());  
+   httpreq:= unassigned;    *)
+     
+  { with TForm.create(self) do begin
+     abitm:= TBitmap.create;
+     //abitm.SetSize(400, 400);
+     setbounds(10,10,330,350);
+     abitm.loadfromresourcename(hinstance,'MOON_FULL');
+     canvas.brush.bitmap:= abitm; 
+     Show; 
+     canvas.FillRect(abitm.Canvas.ClipRect);   
+   end;
+   //}
+   //We define a TPopulationRecord and an array of type TPopulationArray to hold the data of the population table: 
+   
+   LoadPopulationData(Exepath+'examples\'+POPULATION_FILE, PopData);
+   
+   for it:= 0 to length(PopData)-1 do
+       writeln(itoa(it+1)+':'+PopData[it].county+#9+ ' fr: '+
+         itoa(PopData[it].frost)+' _'+format('%.2f',[PopData[it].LifeExp])); 
+   
+   //RunDosInMemo('chkdsk.exe c:\',Memo2);
+   //RunDosInMemo('cmd.exe /C dir c:\maXbox\*.*',Memo2);
+End.
+
+
+Ref: https://github.com/frantic/delphi-tdd-example/blob/master/src/RssModel.pas
+     http://text-processing.com/docs/sentiment.html
+     https://stackoverflow.com/questions/3885703/post-method-winhttprequest-multipart-form-data
+     https://github.com/features/copilot/
+     https://wiki.lazarus.freepascal.org/TAChart_Tutorial:_Userdefined_ChartSource
+     
+#!/usr/bin/env ts-node
+
+import { fetch } from "fetch-h2";
+
+// Determine whether the sentiment of text is positive
+// Use a web service
+
+async function isPositive(text: string): Promise<boolean> {
+
+  const response = await fetch(`http://text-processing.com/api/sentiment/`, {
+    method: "POST",
+    body: `text=${text}`,
+
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+
+  const json = await response.json();
+  return json.label === "pos";
+}     
+
+type
+  TRSSItem = class
+  private
+    FPubDate: TDate;
+    FLink, FTitle: string;
+    FDescription: string;
+  public
+    property Title: string read FTitle write FTitle;
+    property Link: string read FLink write FLink;
+    property Description: string read FDescription write FDescription;
+    property PubDate: TDate read FPubDate write FPubDate;
+  end;
+
+  TRSSFeed = class
+  private
+    FDescription: string;
+    FTitle: string;
+    FLink: string;
+    FItems: TObjectList<TRSSItem>;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function AddItem: TRSSItem;
+    property Title: string read FTitle write FTitle;
+    property Description: string read FDescription write FDescription;
+    property Link: string read FLink write FLink;
+    property Items: TObjectList<TRSSItem> read FItems;
+  end;
+  
+TWinApiDownload = class(TObject)
+  private
+    fEventWorkStart : TEventWorkStart;
+    fEventWork : TEventWork;
+    fEventWorkEnd : TEventWorkEnd;
+    fEventError : TEventError;
+    fURL : string;
+    fUserAgent : string;
+    fStop : Boolean;
+    fActive : Boolean;
+    fCachingEnabled : Boolean;
+    fProgressUpdateInterval : Cardinal;
+    function GetIsActive : Boolean;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function CheckURL(aURL: string) : Integer;
+    function Download(Stream : TStream) : Integer; overload;
+    function Download(var res : string) : Integer; overload;
+    function ErrorCodeToMessageString(aErrorCode : Integer) : string;
+    procedure Stop;
+    procedure Clear;
+    property UserAgent : string read fUserAgent write fUserAgent;
+    property URL : string read fURL write fURL;
+    property DownloadActive : Boolean read GetIsActive;
+    property CachingEnabled : Boolean read fCachingEnabled write fCachingEnabled;
+  property UpdateInterval:Cardinal read fProgressUpdateInterval write fProgressUpdateInterval;
+    property OnWorkStart : TEventWorkStart read fEventWorkStart write fEventWorkStart;
+    property OnWork : TEventWork read fEventWork write fEventWork;
+    property OnWorkEnd : TEventWorkEnd read fEventWorkEnd write fEventWorkEnd;
+    property OnError : TEventError read fEventError write fEventError;
+  end;  
+  
+const axios = require("axios");
+const encodedParams = new URLSearchParams();
+encodedParams.append("text", "Hello World");
+encodedParams.append("to", "es");
+encodedParams.append("from", "en");
+
+const options = {
+  method: 'POST',
+  url: 'https://nlp-translation.p.rapidapi.com/v1/translate',
+  headers: {
+    'content-type': 'application/x-www-form-urlencoded',
+    'X-RapidAPI-Host': 'nlp-translation.p.rapidapi.com',
+    'X-RapidAPI-Key': 'df61a35825msh66c9514de953a7ap192bcfjsn16a3d1018ce3'
+  },
+  data: encodedParams
+};
+
+
+Random forest
+Random forests or random decision forests are an ensemble learning method for classification, regression and other tasks, that operate by constructing a multitude of decision trees at training time and outputting the class that is the mode of the classes or mean prediction of the individual trees. Random decision forests correct for decision trees' habit of overfitting to their training set.
+A random forest is a meta estimator that fits a number of decision tree classifiers on various sub-samples of the dataset and use averaging to improve the predictive accuracy and control over-fitting. The sub-sample size is always the same as the original input sample size but the samples are drawn ...
+The random Forest is an ensemble classifier. It has gained a significant interest in the recent past, due to its quality performance in several areas. A lot of new research work/survey reports related to different areas also reflects this.
+[Search domain www.quora.com] https://www.quora.com/What-is-a-random-forest
+Random forests or random decision forests are an ensemble learning method for classification, regression and other tasks, that operate by constructing a multitude of decision trees at training time and outputting the class that is the mode of the classes or mean prediction of the individual trees. Random decision forests correct for decision trees' habit of overfitting to their training set.
+
+---app_template_loaded_code----
+------------------------------------------------------------------
+
+Titel: Patterns Konkret
+Autor: Max Kleiner (Hrsg.), Silvia Rothen, Bernhard Angerer
+ ISBN: 3-935042-46-9 
+ 
+per le botteghe non e la fine: le salveranno i nostri anziani
+Für die Geschäfte ist es nicht das Ende: Unsere Senioren werden sie retten
+«Werden wir von Robotern gepflegt?», «Ist es noch notwendig, Sprachen zu lernen?», «Wer macht meinen Job?», «Was wäre, wenn es selbstfahrende Autos gäbe?».
+
+maXbox is an intuitive scripting tool designed to help you create scripts. It bundles a Delphi engine that can be used to test, teach and analyze algorithms in a practical manner.
+You can run the application from a portable drive and quickly deploy it using byte or text code. maXbox provides a comprehensive collection of exercises and examples, as well as a handy debug and decompile function.
+On top of that, the program provides numerous tutorials from all over the world.
+
+class -----------------------------------------------------------------
+
+Gruppenarbeiten sind, wo möglich, erwünscht und je nach Rahmenbedingungen sogar von Vorteil. Der nominelle Aufwand liegt bei 90h, kann je nach Vorbereitungsphase und Komplexität aber auch höher sein. Semesterprojekte können vertraulich behandelt werden. Massgebend für die Rahmenbedingungen ist das Studienreglement
+
+Berner Fachhochschule
+Technik und Informatik
+Administration Weiterbildung
+
+http://www.kleiner.ch/kleiner/TEE_files/tee_models.htm
+
+Max Kleiner
+Sentiment Analysis: Sometimes also known as "opinion mining", sentiment analysis can let you know if there has been a change in public opinion toward any aspect of your business or politics till citizen score or street credibility.
+You see code of an API in a script!
+
+https://www.academia.edu/37015210/Machine_Learning_maXbox_starter60_1
+https://github.com/maxkleiner/agsi-data
+
+Dieser berufsbegleitende Diplomlehrgang bietet eine kompakte, praxisnahe Weiterbildung: von Data Science, Datenmanagement und -analysen über Künstliche Intelligenz, Digital Business und Prozessdigitalisierung bis zu Digital Leadership.  
+
