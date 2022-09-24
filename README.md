@@ -13,3 +13,7 @@
 
 from int scale to double scale - double range 0..2000 and 0..100
 ![1154_agsi_plot1](https://user-images.githubusercontent.com/3393121/190666513-e853e8a2-bc7c-456a-8775-69db351c52d7.png)
+
+from int scale to date scale - third line withdraw per day
+
+![1154_agsi_plot13](https://user-images.githubusercontent.com/3393121/192095722-22dbe8f6-6148-4f15-bb3a-616b5e684fc4.png)
