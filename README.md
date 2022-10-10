@@ -6,7 +6,7 @@
 * Enjoy your diagram (data.html)
 * with maXbox download: https://github.com/maxkleiner/maXbox4/releases
 * Get your own api key first: https://agsi.gie.eu/account
-* unpack maXbox and load script: 1154_energy_api_agsi_plot12.txt
+* unpack maXbox and load script: 1154_energy_api_agsi_plot14.txt
 * Compile with F9 and run
 * 
 ![1154_agsi_plot](https://user-images.githubusercontent.com/3393121/190656809-bc7eb7b8-4364-4404-ba50-e9a1ebf9be4f.png)
@@ -17,3 +17,8 @@ from int scale to double scale - double range 0..2000 and 0..100
 from int scale to date scale - third line withdraw per day
 
 ![1154_agsi_plot13](https://user-images.githubusercontent.com/3393121/192095722-22dbe8f6-6148-4f15-bb3a-616b5e684fc4.png)
+
+inspect the headers
+
+![1154_json_https__agsi gie eu](https://user-images.githubusercontent.com/3393121/194946126-71129120-709e-4605-97a7-3c65fcbf0427.png)
+
