@@ -22,3 +22,7 @@ inspect the headers
 
 ![1154_json_https__agsi gie eu](https://user-images.githubusercontent.com/3393121/194946126-71129120-709e-4605-97a7-3c65fcbf0427.png)
 
+Running with Kali Linux
+
+![1154_VirtualBox_kalilinux64_11_10_2022_18_47_51_AGSI](https://user-images.githubusercontent.com/3393121/195171876-42e3006c-35fc-44a1-a98a-fb0fa4a0d18c.png)
+
