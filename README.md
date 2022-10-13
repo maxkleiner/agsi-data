@@ -26,3 +26,5 @@ Running with Kali Linux
 
 ![1154_VirtualBox_kalilinux64_11_10_2022_18_47_51_AGSI](https://user-images.githubusercontent.com/3393121/195171876-42e3006c-35fc-44a1-a98a-fb0fa4a0d18c.png)
 
+![VirtualBox_kalilinux64_13_10_2022_12_09_45_AGSI](https://user-images.githubusercontent.com/3393121/195590810-a3a16792-def4-490c-b8af-a90be748cdd6.png)
+
