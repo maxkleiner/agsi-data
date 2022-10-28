@@ -1,0 +1,379 @@
+PROGRAM SEPDemo_App_mX4_Python_CleanCode_42_Rex_HTTP_Header;
+//Python Cheat Sheet: Functions and Tricks
+//http://www.softwareschule.ch/examples/cheatsheetpython.pdf
+//https://medium.com/codex/5-simple-tips-to-writing-clean-python-code-and-save-time-f57970ca53ae
+
+//https://realpython.com/python-json/
+//https://wiki.freepascal.org/Developing_Python_Modules_with_Pascal#Minimum_Python_API
+{Purpose: Python Cheat Sheet: Functions and Tricks for Clean Code. }
+
+//<Constant declarations> 
+//Please check providers list below:['mymemory', 'microsoft', 'deepl', 'libre'].
+{TYPE <Type declarations> Pascal-Delphi-Python-Json-OLEAutomation}         
+                                                                          
+Const PYHOME32 = 'C:\Users\max\AppData\Local\Programs\Python\Python36-32\'; 
+      PYDLL32  = 'C:\Users\max\AppData\Local\Programs\Python\Python36-32\python36.dll'; 
+      
+Var  //<Variable declarations>
+  i: integer; eg: TPythonEngine;
+  runterrors, sdata: ansistring;
+
+//<FUNCTION> //<PROCEDURE> 
+//Generate public key and private key
+
+Const PYBC =  'from bitcoin import *'+LF+
+              'my_private_key = random_key()'+LF+
+              'my_public_key = privtopub(my_private_key)'+LF+
+              'my_bitcoin_addr = pubtoaddr(my_public_key)'+LF+
+              'print(my_bitcoin_addr)';
+              
+Const USERAGENT = 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 '+
+                  '(KHTML, maXbox4) Chrome/24.0.1312.27 Safari/537.17'; 
+
+Const WEBURL= 'https://jsonplaceholder.typicode.com/todos'; 
+
+Const REXDEF= 'def striphtml(data):      '+LF+
+               '  p = re.compile(r"<.*?>")'+LF+
+               '  return p.sub("", data)  ';  
+               
+Const HTTP_HEADER_DEF =
+'import urllib.request                            '+LF+
+'import argparse                                  '+LF+
+'############# HTTP Header ##############         '+LF+
+'def funcHTTPHeader(url):                         '+LF+
+'  agent= {"User-Agent":"Mozilla/5.0 (OS X 10.13) Gecko/201 Firefox/62.0" }'+LF+
+'  req = urllib.request.Request(                                           '+LF+
+'          url,                                                            '+LF+
+'          data=None,                                                      '+LF+
+'          headers=agent                                                   '+LF+
+'          )                                                               '+LF+
+'  try:http = urllib.request.urlopen(req)                                  '+LF+
+'  except urllib.error.URLError as err:                                    '+LF+
+'      print("ERROR: {} {}".format(err.code,err.reason))                   '+LF+
+'  return http.headers                                                     ';
+               
+//https://gist.github.com/lkdocs/6519378               
+Const DEF_RSAKEYS= 'def generate_RSA(bits=2048): '+LF+
+          '  '''''+LF+
+          //'  Generate an RSA keypair with exponent of 65537 in PEM format'+LF+
+          //'  param: bits The key length in bits '+LF+
+          //'  Return private key and public key '+LF+
+          '  '''''+LF+
+          '  from Crypto.PublicKey import RSA '+LF+
+          '  new_key = RSA.generate(bits, e=65537)'+LF+ 
+          '  public_key = new_key.publickey().exportKey("PEM")'+LF+ 
+          '  private_key = new_key.exportKey("PEM")'+LF+ 
+          '  return private_key, public_key';
+               
+procedure GetJSONData;
+var  XMLhttp: OleVariant; // As Object Automation
+     ajt: TJson; JObj: TJsonObject2; JArray: TJsonArray2;
+     response,statuscode: string; cnt: integer;  //md: TDims;
+begin  
+  XMLhttp:= CreateOleObject('msxml2.xmlhttp')      
+  XMLhttp.Open('GET', WEBURL, False)   //False is async
+  //XMLhttp.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+  XMLhttp.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+  XMLhttp.Send();
+  response:= XMLhttp.responseText; //assign the data
+  statuscode:= XMLhttp.status; 
+  //writeln(statuscode +CRLF+ response)
+  ajt:= TJson.create(); 
+  try
+    ajt.parse(response);
+  except
+    writeln( 'Exception: <TJsonClass>"" parse error: {'+
+                  exceptiontostring(exceptiontype, exceptionparam)) 
+  end; 
+  JArray:= ajt.JsonArray;
+  writeln('Get all Titles: '+itoa(jarray.count));     
+  for cnt:= 0 to jarray.count-1 do
+    writeln(itoa(cnt)+' '+Jarray.items[cnt].asObject.values['title'].asString);   
+  ajt.Free;
+end;
+
+const SecBetweenRuns = 3;
+var Terminated: boolean;
+
+procedure TMyFVODServiceServiceExecute(Sender: TService);
+var Count, WaitTimeMil: Integer;
+begin
+  while not Terminated do begin
+    Inc(Count);
+    if Count >= SecBetweenRuns then begin
+      Count:=0;
+      GetDosOutput('d:\usr\local\myApp -<SysName> STO','D:\');
+    end;
+    Sleep(1000);
+    //ServiceThread.ProcessRequests(False);
+  end;
+end;
+
+procedure {constructor} TWebHookCreate(const aURL: string);
+var FHTTP: TIdHTTP;
+    FURL: string;
+begin
+  FURL := aURL;
+  // Remember that you need libeay32.dll and ssleay32.dll in the path for https to work
+  FHTTP := TIdHTTP.Create(nil);
+  fHTTP.Request.ContentType := 'application/json';
+  fHTTP.Request.ContentEncoding := 'utf-8';
+  fHTTP.Request.CacheControl := 'no-cache';
+  fHTTP.HTTPOptions:= fHTTP.HTTPOptions - 
+      //[hoForceEncodeParams] + [hoNoProtocolErrorException, hoWantProtocolErrorContent];
+      [hoForceEncodeParams];
+end;
+
+procedure TWebHookPost(const aJson: string);
+var
+  ReqString: TStringList;
+  ResStream: TStringStream;
+  FHTTP: TIdHTTP;   URL: string;
+begin
+  ReqString := TStringList.Create;
+  try
+    try
+      ReqString.Text := aJson;
+      ResStream := TStringStream.Create('');
+      try
+//        DebugOut('HTTP Post ' + ReqString.Text);
+        //fHTTP.Post(URL, ReqString, ResStream, IndyTextEncoding_UTF8);
+//        DebugOut('Response: ' + ResStream.DataString);
+      finally
+        ResStream.Free;
+      end;
+    except // HTTP Exception
+      //on E: Exception
+      //do begin
+//        DebugOutException(E, 'HTTP Post');
+      end;
+    //end;
+  finally
+    ReqString.Free;
+  end;
+end;
+
+var regEx: TRegExpr; pform: TWinformp;
+
+Begin  //@Main
+//<Executable statements>
+//https://www.amazon.com/Patterns-konkret-Max-Kleiner/dp/3935042469
+{ ISBN-10 ? : 3935042469  ISBN-13 ? : 978-3935042468} 
+
+  eg:= TPythonEngine.Create(Nil);
+  eg.pythonhome:= PYHOME32;
+  eg.opendll(PYDLL32)
+  //eng.IO:= pyMemo;
+  try
+    eg.Execstring('import base64'+LF+'import urllib.parse');
+    eg.Execstring('import urllib.request, os, textwrap, json, requests, uuid');
+    eg.Execstring(REXDEF);
+    
+   //26. One-liner with Python -c command    
+   print(getDosOutput('py -c "import sys; print(sys.version.split()[0])"',exePath));
+   //python -c "import sys; print(sys.version.split()[0])"   
+   //Or check the value of the environment variable:   
+   CaptureConsoleOutput('py -c"import sys;print(sys.version.split()[0])"', 
+                                                             maxform1.memo2); 
+  
+   //print(getDosOutput('py -c "print("odd" if int(input(''Enter a number: ''))%2 else "even")"',exepath));
+   
+   //5. Reverse an string   
+   println(' reversestring: '+eg.evalstr('"John Deo maXbox"[::-1]'));
+   print(' reversestring: '+getDosOutput('py -c "print(''John Deo maXbox''[::-1])"',exePath)); 
+   eg.Execstring('v1 = "madam" # is a palindrome string');
+   println('Palindrome checker: '+eg.evalstr('v1.find(v1[::-1]) == 0 # True'));
+   
+   //9. Most repeated item in a list
+   eg.Execstring('lst = [1, 2, 3, 4, 3, 4, 4, 5, 6, 3, 1, 6, 7, 9, 4, 0]');
+   println('repeaters: '+eg.evalstr('max(lst, key=lst.count)'));
+   println('repeaters: '+eg.evalstr('max(set(lst), key=lst.count)'));
+   
+   //10. List comprehensions  prime
+   eg.Execstr('cities = ["Bern", "Dublin", "Oslo"]');
+   eg.Execstr('def visit(city):'+LF+
+                 '  return ("Welcome to "+city)');
+   println('comprehensions: '+eg.evalstr('[visit(city) for city in cities]'));
+   //12. Item index during looping
+   eg.Execstr('alst = ["blue", "lightblue", "pink", "orange", "red"]');
+   println('item index: '+eg.evalstr('[(idx,item) for idx, item in enumerate(alst)]'));
+   
+   //14. Concatenate list elements to in a single string
+   println('concate: '+eg.evalstr('", ".join(["john","sara","jim","rock"])'));
+   //16. Check an object attributes
+   //println('dir(): '+eg.evalstr('dir("hello world")'));
+   
+   //eg.Execstring('import emoji');
+   //20. Easiest way to generate Universally Unique IDs
+   println('uuid: '+eg.evalstr('uuid.uuid4()'));
+   
+   //println(getDosOutput('py -c "import os; print(os.getenv(''PATH'').split('';''))"',exePath));
+   
+   //------------------Clean Code Blocks--------------------------------//
+   //what that variable is supposed to do.
+   eg.Execstring('import datetime');
+   //ymdstr = date.now().isoformat() bad
+   eg.Execstr('currentDate = datetime.datetime.now().isoformat()');
+   println('current date: '+eg.evalstr('currentDate'));
+   
+   //# What the h*ck is 420 for?
+   //eg.Execstring('from pickle import serializer');
+   //ymdstr = date.now().isoformat() bad
+   //eg.Execstr('result = serializer.serialize(data, 420)');
+   //println('current date: '+eg.evalstr('currentDate'));
+   //json = serializer.serialize(data, sort_keys=True, indent=4)
+   
+   //# Always use highly descriptive names
+   eg.Execstring('import re');
+   eg.Execstr('address = "S Grand Ave, LA 90013"');
+   eg.Execstr('city_zip_code_regex = re.compile("^[^,]+,\s*(.+?)\s*(\d{5})$")');
+   eg.Execstr('matches = city_zip_code_regex.match(address)');
+   println('regex match1: '+
+            eg.evalstr('matches.group(1), matches.group(2)'));
+            
+   with TRegExpr.Create do begin
+     Expression:= ('^[^,]+,\s*(.+?)\s*(\d{5})$');
+     if Exec('S Grand Ave, LA 90013') then
+       for i:=0 to SubExprMatchCount do
+          PrintF('Group %d  : %s', [i, Match[i]]);
+     Free;
+   end; 
+   
+   eg.Execstr('city_zip_code_regex = re.compile("^[^,]+,\s*(?P<city>.+?)'+
+                                                 '\s*(?P<zipcode>\d{5})$")');
+   eg.Execstr('matches = city_zip_code_regex.match(address)');
+   println('regex match2: '+
+            eg.evalstr('matches.group("city"),matches.group("zipcode")')); 
+  
+  //regex by naming the subpatterns.           
+  (* with TRegExpr.Create do begin
+     Expression:= ('^[^,]+,\s*(?P<city>.+?)\s*(?P<zipcode>\d{5})$');
+     if Exec('S Grand Ave, LA 90013') then
+       for i:=0 to SubExprMatchCount do
+          PrintF('Group %d  : %s', [i, Match[i]]);
+     Free;
+   end; *)  
+   
+   //eg.Execstring('from delphivcl import *');  
+   // println('dir p4d: '+eg.evalstr('dir()[0:45]'));   
+   print('dir p4d:: '+getDosOutput('py -3.6-32 -c "from delphivcl import *; '+
+                                    'print(dir()[0:45])"',exePath)); 
+   println('file_dir:: '+
+             eg.evalstr('os.path.dirname(os.path.abspath("__file__"))'));
+             
+   //https://python.plainenglish.io/10-python-snippets-i-use-everyday-4d3f58de841d
+   //1 # Print a string n times        
+   println('ntimes '+eg.evalstr('"This is a separator","-"*50'));    
+   println('ntimes '+eg.evalstr('dir()[0:5]'));  
+   //2. Change string case (upper/lower/title)
+   println('upper '+eg.evalstr('"my_string".upper()'));
+   //3. Split a string and join it back  
+   println('split&join '+eg.evalstr('"mThis is a string".split()'));
+   println('split&join '+
+           eg.evalstr('[el.title() for el in "mThis is a string".split()]'));
+   println('split&join '+
+      eg.evalstr('" ".join([el.title() for el in "mThis is a string".split()])'));
+       
+   //4. List flattening   
+   eg.Execstr('list_of_lists=[["a","b","c"],["d","e","f"],["g", "h","i"]]');
+   println('flattening '+
+      eg.evalstr('[item for sublist in list_of_lists for item in sublist]'));
+   //5. Get unique elements from the list   
+   eg.Execstr('list_duplicates= ["a","b","c","d","e","f","g","h","i","a","a","c","d","e","l","g","z","i"]');
+   println('uniques '+
+      eg.evalstr('sorted(list(set(list_duplicates)))'));
+   //6. Merge two lists in a dictionary
+   println('merger '+
+                eg.evalstr('dict(zip(["a","b","c"], [1, 2, 3]))'));  
+   //9. Get the most frequent value from a list              
+   println('most frequent: '+
+            eg.evalstr('max(set(list_duplicates),key=list_duplicates.count)'));
+   //10. Palindrome
+   println('is palindrome: '+
+            eg.evalstr('"racecar" == "racecar"[::-1]'));  
+   writeln(' ');          
+   //eg.execstr(filetostring('C:\maXbox\works2021\maxbox4\examples\httpheader1.py'));
+   //println(eg.evalstr('funcHTTPHeader("https://www.ipso.ch/ibz")'));  
+   
+   writeln(' 3 needs the main() -uncomment ');
+   //println(getDosOutput('py -c "import os; print(os.getenv(''PATH'').split('';''))"',exePath));
+   println(getDosOutput('py examples\httpheader1.py --url "https://www.ipso.ch/ibz"',exePath));
+   
+   writeln(' 4 solution integration complete:');  
+    eg.Execstring(HTTP_HEADER_DEF);
+    println(eg.evalstr('funcHTTPHeader("https://www.ipso.ch/ibz")'));
+    
+    writeln('5 test cmd runtime');
+   //println(getDosOutput('cmd /c tracert www.ibz.ch',exePath));
+   
+                      
+  except
+    eg.raiseError;
+  finally
+    eg.Free;
+    //aPythonVersion.Free;
+  end; 
+  
+  //pform:= TWinformp.create(self);
+  //loadForm();
+  //pform.show;
+  
+   //sdata:= loadfile(Exepath+'\examples\058_pas_filefinder32test.psb'); 
+  //writeln(botostr(RunBytecode(sdata, runterrors)));
+  //GetJSONData;  
+  //maXcalcF('2^64 /(60*60*24*365)')  
+//<Definitions>  
+End. 
+
+Ref:  https://python.plainenglish.io/10-python-snippets-i-use-everyday-4d3f58de841d
+https://www.sonarqube.org/features/multi-languages/python/
+https://python.plainenglish.io/15-most-powerful-python-one-liners-you-cant-skip-ea722d402de
+ max(...)
+    max(iterable, *[, default=obj, key=func]) -> value
+    max(arg1, arg2, *args, *[, key=func]) -> value
+
+    With a single iterable argument, return its biggest item. The
+    default keyword-only argument specifies an object to return if
+    the provided iterable is empty.
+    With two or more arguments, return the largest argument.
+    
+    for city in cities:
+        visit(city)             
+        
+    Machine learning: Machine learning is an AI application that automatically learns and improves from previous sets of experiences without the requirement for explicit programming.
+    Deep learning: Deep learning is a subset of ML that learns by processing data with the help of artificial neural networks.
+    Neural network: Neural networks are computer systems that are loosely modeled on neural connections in the human brain and enable deep learning.
+    Cognitive computing: Cognitive computing aims to recreate the human thought process in a computer model. It seeks to imitate and improve the interaction between humans and machines by understanding human language and the meaning of images.
+    Natural language processing (NLP): NLP is a tool that allows computers to comprehend, recognize, interpret, and produce human language and speech.
+    Computer vision: Computer vision employs deep learning and pattern identification to interpret image content (graphs, tables, PDF pictures, and videos).
+        
+
+Then to convert any file from wav to mp3 just use pydub as
+import pydub
+sound = pydub.AudioSegment.from_wav("D:/example/apple.wav")
+sound.export("D:/example/apple.mp3", format="mp3")
+
+Exception: <class 'OSError'>: Cannot load native module 'Crypto.Hash._MD5': Trying '_MD5.cp36-win32.pyd': [WinError 126] The specified module could not be found, Trying '_MD5.pyd'
+
+Patterns konkret.
+ISBN-13: 9783935042468  ISBN-10: 3935042469
+Author: Kleiner, Max
+Binding: Paperback
+Publisher: Software + Support Published: September 2003
+
+https://mymemory.translated.net/doc/spec.php
+Hello PyWorld_, This data will be written on the file.
+Hola PyWorld_,&#10; Estos datos se escribirán en el archivo.
+
+Install a 32-bit package with a 64 pip installer -t (Target)
+C:\Users\max\AppData\Local\Programs\Python\Python36-32>pip3 install -t C:\Users\
+max\AppData\Local\Programs\Python\Python36-32\Lib bitcoin
+----File newtemplate.txt not exists - now saved!----
+
+ mX4 executed: 18/03/2022 09:28:15  Runtime: 0:0:3.913  Memload: 44% use       
+ mX4 executed: 18/03/2022 09:28:34  Runtime: 0:0:3.43  Memload: 44% use 
+ mX4 executed: 22/03/2022 11:34:50  Runtime: 0:0:3.553  Memload: 47% use 
+ mX4 executed: 05/05/2022 11:07:38  Runtime: 0:0:2.747  Memload: 46% use 
+ 
+
+   
