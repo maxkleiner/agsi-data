@@ -28,3 +28,8 @@ Running with Kali Linux
 
 ![VirtualBox_kalilinux64_13_10_2022_12_09_45_AGSI](https://user-images.githubusercontent.com/3393121/195590810-a3a16792-def4-490c-b8af-a90be748cdd6.png)
 
+After all also in a 64bit box:
+
+![firstgui64bit2_agsienergystoreAPI](https://github.com/maxkleiner/agsi-data/assets/3393121/dbf80a65-053b-48e1-aacb-eaac0a1cce91)
+
+
